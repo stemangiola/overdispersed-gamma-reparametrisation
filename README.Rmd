@@ -18,7 +18,7 @@ urlcolor: magenta
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r libraries, echo=FALSE, results='hide'}
+```{r libraries, echo=FALSE, results='hide', include=FALSE}
 library(foreach)
 library(tidyverse)
 
@@ -26,9 +26,9 @@ library(tidyverse)
 
 ## Comparison of overdispersion between gamma, negative binomial, with poisson
 
-Both negative binomial and gamma can limit to a poisson
+# Both negative binomial and gamma can limit to a poisson
 
-```{r limit_to_poisson}
+```{r limit_to_poisson, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
@@ -76,9 +76,9 @@ my_df %>% ggplot(aes(x=mean, y=spread, color=label)) + geom_line() + theme_bw()
 
 However gamma and negative binomial introduce overdispersion "generalising" the relation between expected value and variance of the poisson in a different way
 
-This is the gamma with increasing overdispersion, from poisson.
+# Gamma with increasing overdispersion
 
-```{r gamma}
+```{r gamma, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
@@ -150,9 +150,9 @@ my_df %>% ggplot(aes(x=mean, y=spread, color=rate_param_R_gamma)) + geom_line() 
 ```
 
 
-This is the negative binomial with increasing overdispersion, from poisson.
+# Negative binomial with increasing overdispersion
 
-```{r negative_binomial}
+```{r negative_binomial, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
@@ -223,9 +223,9 @@ my_df =
 my_df %>% ggplot(aes(x=mean, y=spread, color=size_param_R_nb)) + geom_line() + theme_bw() 
 ```
 
-If we superimpone gamma and negative binomial
+# Gamma + negative binomial
 
-```{r gamma and negative_binomial}
+```{r gamma and negative_binomial, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
@@ -255,9 +255,11 @@ my_df =
 my_df %>% ggplot(aes(x=mean, y=spread, color=Label)) + geom_line() + theme_bw() 
 ```
 
-Now let's try to reparametrise the gamma to have constant SD and apply a linear dependence between SD and mean
+# Reparametrise the gamma 
 
-```{r gamma reparametrised}
+to have constant SD and apply a linear dependence between SD and mean
+
+```{r gamma reparametrised, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
@@ -370,9 +372,9 @@ my_df =
 my_df %>% ggplot(aes(x=mean, y=spread, color=multiplic_factor)) + geom_line() + theme_bw() 
 ```
 
-If we superimpone gamma and negative binomial
+# Gamma reparametrised + gamma + negative binomial
 
-```{r gemme reparam, gamma and negative_binomial}
+```{r gemme reparam, gamma and negative_binomial, echo=FALSE}
 
 mm = c(seq(2, 10, 1), seq(10, 5000, 10))
 my_df = 
