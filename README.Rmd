@@ -1,0 +1,420 @@
+---
+title: "gamma_approx_to_nb"
+author: "Mangiola Stefano"
+date: "15/06/2018"
+output:
+  github_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    toc: yes
+    toc_depth: 3
+    code_folding: hide
+linkcolor: magenta
+urlcolor: magenta
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, results='hide'}
+library(foreach)
+library(tidyverse)
+
+```
+
+## Comparison of overdispersion between gamma, negative binomial, with poisson
+
+Both negative binomial and gamma can limit to a poisson
+
+```{r limit_to_poisson}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Gamma
+	foreach(m = mm, .combine = bind_rows) %do% {
+	s=1
+
+	x = rgamma(10000,shape = m * s, rate = s)
+	
+	c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	} %>% 
+	rename("gamma" = `spread.10%`) %>% 
+	
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=1000000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% 
+			rename("nb" = `spread.10%`),
+	by="mean"
+	) %>%
+		
+	# Poisson
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			
+			x = rpois(10000, lambda = m)
+			
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% rename("pois" = `spread.10%`),
+		by="mean"
+	) %>%
+		gather(label, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=label)) + geom_line() + theme_bw() 
+```
+
+
+However gamma and negative binomial introduce overdispersion "generalising" the relation between expected value and variance of the poisson in a different way
+
+This is the gamma with increasing overdispersion, from poisson.
+
+```{r gamma}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Gamma
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		x = rgamma(10000,shape = m * s, rate = s)
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	} %>% 
+	rename("1" = `spread.10%`) %>% 
+		
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.8
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("0.8" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.6
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("0.6" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.4
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("0.4" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.2
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("0.2" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.1
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("0.1" = `spread.10%`),
+		by="mean"
+	) %>%
+		gather(rate_param_R_gamma, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=rate_param_R_gamma)) + geom_line() + theme_bw() 
+```
+
+
+This is the negative binomial with increasing overdispersion, from poisson.
+
+```{r negative_binomial}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Negative binomial
+	foreach(m = mm, .combine = bind_rows) %do% {
+			s=1000000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% 
+	rename("1000000" = `spread.10%`) %>% 
+		
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=100000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("100000" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=10000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% rename("10000" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=1000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("1000" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=100
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("100" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Negative binomial
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=10
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% rename("10" = `spread.10%`),
+		by="mean"
+	) %>%
+		gather(size_param_R_nb, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=size_param_R_nb)) + geom_line() + theme_bw() 
+```
+
+If we superimpone gamma and negative binomial
+
+```{r gamma and negative_binomial}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Negative binomial
+	foreach(m = mm, .combine = bind_rows) %do% {
+			s=3000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% rename("negative binomial" = `spread.10%`) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.4
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("gamma" = `spread.10%`),
+		by="mean"
+	) %>% 
+	gather(Label, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=Label)) + geom_line() + theme_bw() 
+```
+
+Now let's try to reparametrise the gamma to have constant SD and apply a linear dependence between SD and mean
+
+```{r gamma reparametrised}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Gamma
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.3 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	} %>% 
+	rename("0.3" = `spread.10%`) %>% 
+		
+	# Gamma
+	left_join(
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.25 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	} %>% rename("0.25" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.20 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	}  %>% rename("0.20" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.15 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	}  %>% rename("0.15" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.10 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	} %>% rename("0.10" = `spread.10%`),
+		by="mean"
+	) %>%
+	
+	# Gamma
+	left_join(
+	foreach(m = mm, .combine = bind_rows) %do% {
+		s=1
+		s = s + 0.05 * m
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	}  %>% rename("0.05" = `spread.10%`),
+		by="mean"
+	) %>%
+		gather(multiplic_factor, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=multiplic_factor)) + geom_line() + theme_bw() 
+```
+
+If we superimpone gamma and negative binomial
+
+```{r gemme reparam, gamma and negative_binomial}
+
+mm = c(seq(2, 10, 1), seq(10, 5000, 10))
+my_df = 
+	
+	# Negative binomial
+	foreach(m = mm, .combine = bind_rows) %do% {
+			s=3000
+			x = rnbinom(10000, mu = m, size = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		} %>% rename("negative binomial" = `spread.10%`) %>%
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+		s=10
+		s = (s + 0.02 * m) 
+		
+		v = s^2;
+		shape = m^2 / v;
+		rate = m / v;
+		
+		x = rgamma(10000,shape = shape, rate = rate)
+			
+		c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+	}  %>% rename("gamma_reparam" = `spread.10%`),
+		by="mean"
+	) %>% 
+	
+	# Gamma
+	left_join(
+		foreach(m = mm, .combine = bind_rows) %do% {
+			s=0.4
+			x = rgamma(10000,shape = m * s, rate = s)
+			c(mean = m, spread = abs(quantile(x, 0.1) - quantile(x, 0.9)))
+		}  %>% rename("gamma" = `spread.10%`),
+		by="mean"
+	) %>% 
+	gather(Label, spread, -mean) 
+
+```
+
+
+```{r, echo=FALSE}
+my_df %>% ggplot(aes(x=mean, y=spread, color=Label)) + geom_line() + theme_bw() 
+```
