@@ -1,18 +1,20 @@
-gamma\_approx\_to\_nb
+Modelling overdispersion
 ================
 Mangiola Stefano
 15/06/2018
 
--   [Comparison of overdispersion between gamma, negative binomial, with poisson](#comparison-of-overdispersion-between-gamma-negative-binomial-with-poisson)
 -   [Both negative binomial and gamma can limit to a poisson](#both-negative-binomial-and-gamma-can-limit-to-a-poisson)
--   [Gamma with increasing overdispersion](#gamma-with-increasing-overdispersion)
+-   [Gamma with increasing overdispersion - fixing rate](#gamma-with-increasing-overdispersion---fixing-rate)
 -   [Negative binomial with increasing overdispersion](#negative-binomial-with-increasing-overdispersion)
 -   [Gamma + negative binomial](#gamma-negative-binomial)
 -   [Reparametrise the gamma](#reparametrise-the-gamma)
 -   [Gamma reparametrised + gamma + negative binomial](#gamma-reparametrised-gamma-negative-binomial)
+-   [Gamma with added variance dependence - slope changing](#gamma-with-added-variance-dependence---slope-changing)
+-   [Gamma with added variance dependence - intercept changing](#gamma-with-added-variance-dependence---intercept-changing)
+-   [Dirichlet](#dirichlet)
+-   [Negative binomial with added variance dependence - slope changing](#negative-binomial-with-added-variance-dependence---slope-changing)
 
-Comparison of overdispersion between gamma, negative binomial, with poisson
----------------------------------------------------------------------------
+Here I show at what extent we can approximate overdispersed poisson with negative binomial or gamma distributions
 
 Both negative binomial and gamma can limit to a poisson
 =======================================================
@@ -21,8 +23,8 @@ Both negative binomial and gamma can limit to a poisson
 
 However gamma and negative binomial introduce overdispersion "generalising" the relation between expected value and variance of the poisson in a different way
 
-Gamma with increasing overdispersion
-====================================
+Gamma with increasing overdispersion - fixing rate
+==================================================
 
 ![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
@@ -47,3 +49,23 @@ Gamma reparametrised + gamma + negative binomial
 ================================================
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+Gamma with added variance dependence - slope changing
+=====================================================
+
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+Gamma with added variance dependence - intercept changing
+=========================================================
+
+![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+Dirichlet
+=========
+
+![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
+Negative binomial with added variance dependence - slope changing
+=================================================================
+
+![](README_files/figure-markdown_github/negative%20binomial%20slope-1.png)
